@@ -1,0 +1,40 @@
+package com.gaurav
+
+import org.apache.spark._  // imports all the members of the object Fun. (static import in java)
+import org.apache.spark.SparkContext._
+import org.apache.log4j._
+
+//Count up how many of each star rating exists in the Movie lens 100k data set.
+object RatingCounter{
+ def main(args: Array[String]): Unit = {
+   
+ 
+//Set the log level to only print errors
+ Logger.getLogger("org").setLevel(Level.ERROR)
+
+
+//Create a SparkContext using every core of the local machine, named RatingsCounter
+val sc = new SparkContext("local[*]", "RatingCounter")
+
+//Load up each line of the rating into RDD
+val lines = sc.textFile("/home/gaurav/Desktop/SPARK/spark Data/u.data")
+
+//Convert each line to a string ,split it out by tabs and extract the third field
+    //(the file format is userId,movieId,rating ,timeStamp )
+ val ratings = lines.map(x => x.toString().split("\t")(2))
+    
+    
+//count up how many times each value occurs
+    
+    val results = ratings.countByValue()
+    
+    //Sort the resulting map of (rating,count) tuples
+    
+ val sortedResut = results.toSeq.sortBy(_._1)
+
+ //print each result on its own line
+  sortedResut.foreach(println)
+
+ }
+}
+

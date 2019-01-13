@@ -1,0 +1,38 @@
+package com.gaurav
+
+
+import org.apache.spark._  // imports all the members of the object Fun. (static import in java)
+import org.apache.spark.SparkContext._
+import org.apache.log4j._
+//import scala.collection.parallel.ParIterableLike.FlatMap
+
+//Count up how many of each star rating exists in the Movie lens 100k data set.
+object test4_book_spark{
+ def main(args: Array[String]): Unit = {
+   
+ 
+//Set the log level to only print errors
+ Logger.getLogger("org").setLevel(Level.ERROR)
+
+
+//Create a SparkContext using every core of the local machine, named RatingsCounter
+val sc = new SparkContext("local[*]", "WordCountBetter")
+
+//Load up each line of the rating into RDD
+val input = sc.textFile("/home/gaurav/Desktop/SPARK/spark Data/LICENSE.txt")
+
+//Split using a regular expression that extracts words
+val words = input.flatMap(x =>x.split(""))
+
+//Normalize everything to lowercase
+//val lowercaseWords = words.map(x =>x.toLowerCase())
+
+//count of the occurences of each word
+//val wordCounts = lowercaseWords.countByValue()
+
+//print the results
+println(words.count())
+
+
+}
+}

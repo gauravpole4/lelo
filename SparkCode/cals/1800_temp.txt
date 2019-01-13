@@ -1,0 +1,67 @@
+package com.gaurav
+
+import org.apache.spark._  // imports all the members of the object Fun. (static import in java)
+import org.apache.spark.SparkContext._
+import org.apache.log4j._
+
+//Compute the average number of friends by age in a social network
+object EmpbyAge{
+  
+  
+//A function that splits a line of input into (age,numfriends) tuples.
+  
+  def parseLine(line:String)={
+    //Split by commas
+    val fields = line.split(",")
+    
+   //Extract the age and numfriends fields, and convert to integers
+    val stationId = fields(0)
+    val entryType = fields(2)
+    val temp = fields(3).toFloat * (0.1f / 5.0f) + 32.0f
+    //Create a tuple that is our result
+    (stationId,entryType,temp)
+  }
+  
+  //Our main function where the action happens
+  
+  
+ def main(args: Array[String]): Unit = {
+   
+ 
+//Set the log level to only print errorsEmpbyAge
+ Logger.getLogger("org").setLevel(Level.ERROR)
+
+
+//Create a SparkContext using every core of the local machine, named RatingsCounter
+val sc = new SparkContext("local[*]", "MinTemperature")
+
+//Load up each line of the rating into RDD
+val lines = sc.textFile("/home/gaurav/Desktop/SPARK/spark Data/1800.csv")
+
+//Convert to (stationId,entryType,temp) tuples
+val parsedLine = lines.map(parseLine)
+    
+
+//Filter out all but Tmin entries
+ val MinTemperature = parsedLine.filter(x => x._2 =="Tmin")
+
+//Convert  to stationId and temp
+val stationTemps = MinTemperature.map(x => (x._1,x._2.toFloat))
+
+//reduce by stationID retaining the minimum temp found
+val MinTempsbyStation = stationTemps.reduceByKey( (x,y) => x.min(y))
+
+//collect format and print the results
+val results = MinTempsbyStation.collect()
+
+for (result <- results.sorted){
+  val station = result._1
+  val temp = result._2
+  val formattedTemp = f"$temp%.2f F"
+  println(s"$station minimum temperature: $formattedTemp")
+}
+}
+ 
+
+}
+
